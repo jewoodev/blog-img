@@ -1,0 +1,110 @@
+<svg width="100%" viewBox="0 0 680 620" role="img" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif">
+<title>WebMVC vs WebFlux 스레드 점유 타임라인 비교</title>
+<desc>WebMVC는 하나의 스레드가 450ms 동안 블로킹되는 반면, WebFlux는 동일한 스레드가 여러 요청의 I/O 대기 구간을 넘나들며 재사용되는 모습을 타임라인으로 비교합니다.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<pattern id="blocked-hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+<line x1="0" y1="0" x2="0" y2="6" stroke="#993C1D" stroke-width="3"/>
+</pattern>
+<style>
+.t { font-size: 14px; fill: #2C2C2A; }
+.ts { font-size: 12px; fill: #5F5E5A; }
+.th { font-size: 14px; font-weight: 500; fill: #2C2C2A; }
+</style>
+</defs>
+
+<text class="th" x="170" y="30" text-anchor="middle">WebMVC</text>
+<text class="ts" x="170" y="48" text-anchor="middle">Thread-per-request, 블로킹</text>
+
+<text class="th" x="510" y="30" text-anchor="middle">WebFlux</text>
+<text class="ts" x="510" y="48" text-anchor="middle">Event loop, 논블로킹</text>
+
+<line x1="340" y1="20" x2="340" y2="600" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="3 3"/>
+
+<text class="ts" x="40" y="78">Thread-1</text>
+<rect x="40" y="85" width="260" height="28" rx="4" fill="url(#blocked-hatch)" opacity="0.85"/>
+<rect x="40" y="85" width="260" height="28" rx="4" fill="none" stroke="#993C1D" stroke-width="0.5"/>
+<text class="ts" x="170" y="103" text-anchor="middle" fill="#4A1B0C" font-weight="500">Req A 점유 (450ms 블로킹)</text>
+
+<text class="ts" x="40" y="133">Thread-2</text>
+<rect x="40" y="140" width="260" height="28" rx="4" fill="url(#blocked-hatch)" opacity="0.85"/>
+<rect x="40" y="140" width="260" height="28" rx="4" fill="none" stroke="#993C1D" stroke-width="0.5"/>
+<text class="ts" x="170" y="158" text-anchor="middle" fill="#4A1B0C" font-weight="500">Req B 점유 (450ms 블로킹)</text>
+
+<text class="ts" x="40" y="188">Thread-3</text>
+<rect x="40" y="195" width="260" height="28" rx="4" fill="url(#blocked-hatch)" opacity="0.85"/>
+<rect x="40" y="195" width="260" height="28" rx="4" fill="none" stroke="#993C1D" stroke-width="0.5"/>
+<text class="ts" x="170" y="213" text-anchor="middle" fill="#4A1B0C" font-weight="500">Req C 점유 (450ms 블로킹)</text>
+
+<text class="ts" x="40" y="248">0ms</text>
+<text class="ts" x="300" y="248" text-anchor="end">450ms</text>
+<line x1="40" y1="235" x2="300" y2="235" stroke="#B4B2A9" stroke-width="0.5"/>
+
+<rect x="40" y="275" width="260" height="130" rx="8" fill="#FAECE7" stroke="#D85A30" stroke-width="0.5"/>
+<text class="th" x="56" y="298" fill="#4A1B0C">요청 1개 = 스레드 1개</text>
+<text class="ts" x="56" y="320" fill="#712B13">Auth 50ms · Trans 200ms</text>
+<text class="ts" x="56" y="338" fill="#712B13">Emotion 150ms · Save 30ms</text>
+<text class="ts" x="56" y="356" fill="#712B13">Broadcast 20ms</text>
+<line x1="56" y1="368" x2="284" y2="368" stroke="#D85A30" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text class="ts" x="56" y="388" fill="#4A1B0C" font-weight="500">I/O 대기 중에도</text>
+<text class="ts" x="56" y="402" fill="#4A1B0C" font-weight="500">스레드는 놀고만 있음</text>
+
+<text class="ts" x="380" y="78">EventLoop-1</text>
+<rect x="380" y="85" width="70" height="28" rx="4" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+<text class="ts" x="415" y="103" text-anchor="middle" fill="#26215C" font-weight="500">A: auth</text>
+<rect x="452" y="85" width="70" height="28" rx="4" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text class="ts" x="487" y="103" text-anchor="middle" fill="#04342C" font-weight="500">B: auth</text>
+<rect x="524" y="85" width="70" height="28" rx="4" fill="#F4C0D1" stroke="#993556" stroke-width="0.5"/>
+<text class="ts" x="559" y="103" text-anchor="middle" fill="#4B1528" font-weight="500">C: auth</text>
+<rect x="596" y="85" width="44" height="28" rx="4" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+<text class="ts" x="618" y="103" text-anchor="middle" fill="#26215C" font-weight="500">A:save</text>
+
+<text class="ts" x="380" y="133">EventLoop-2</text>
+<rect x="380" y="140" width="90" height="28" rx="4" fill="#CECBF6" stroke="#534AB7" stroke-width="0.5"/>
+<text class="ts" x="425" y="158" text-anchor="middle" fill="#26215C" font-weight="500">A: trans|emo</text>
+<rect x="472" y="140" width="90" height="28" rx="4" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text class="ts" x="517" y="158" text-anchor="middle" fill="#04342C" font-weight="500">B: trans|emo</text>
+<rect x="564" y="140" width="76" height="28" rx="4" fill="#F4C0D1" stroke="#993556" stroke-width="0.5"/>
+<text class="ts" x="602" y="158" text-anchor="middle" fill="#4B1528" font-weight="500">C: trans|emo</text>
+
+<text class="ts" x="380" y="188">EventLoop-3</text>
+<rect x="380" y="195" width="60" height="28" rx="4" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="0.5"/>
+<text class="ts" x="410" y="213" text-anchor="middle" fill="#2C2C2A">idle</text>
+<rect x="442" y="195" width="70" height="28" rx="4" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text class="ts" x="477" y="213" text-anchor="middle" fill="#04342C" font-weight="500">B: save</text>
+<rect x="514" y="195" width="70" height="28" rx="4" fill="#F4C0D1" stroke="#993556" stroke-width="0.5"/>
+<text class="ts" x="549" y="213" text-anchor="middle" fill="#4B1528" font-weight="500">C: save</text>
+<rect x="586" y="195" width="54" height="28" rx="4" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="0.5"/>
+<text class="ts" x="613" y="213" text-anchor="middle" fill="#2C2C2A">idle</text>
+
+<text class="ts" x="380" y="248">0ms</text>
+<text class="ts" x="640" y="248" text-anchor="end">~280ms</text>
+<line x1="380" y1="235" x2="640" y2="235" stroke="#B4B2A9" stroke-width="0.5"/>
+
+<rect x="380" y="275" width="260" height="130" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text class="th" x="396" y="298" fill="#04342C">스레드 1개 = 요청 N개</text>
+<text class="ts" x="396" y="320" fill="#085041">I/O 대기 시점에 스레드 해제</text>
+<text class="ts" x="396" y="338" fill="#085041">콜백 등록 후 다음 작업 처리</text>
+<text class="ts" x="396" y="356" fill="#085041">trans · emotion 병렬 실행</text>
+<line x1="396" y1="368" x2="624" y2="368" stroke="#1D9E75" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text class="ts" x="396" y="388" fill="#04342C" font-weight="500">대기 시간 = 다른 요청의</text>
+<text class="ts" x="396" y="402" fill="#04342C" font-weight="500">연산 시간으로 재활용</text>
+
+<line x1="40" y1="440" x2="640" y2="440" stroke="#D3D1C7" stroke-width="0.5"/>
+
+<text class="th" x="340" y="468" text-anchor="middle">동시 요청 100개 기준</text>
+
+<rect x="60" y="488" width="260" height="44" rx="6" fill="#FAECE7" stroke="#D85A30" stroke-width="0.5"/>
+<text class="th" x="190" y="508" text-anchor="middle" fill="#4A1B0C">스레드 풀 100개 점유</text>
+<text class="ts" x="190" y="524" text-anchor="middle" fill="#712B13">풀 소진 시 신규 요청 대기</text>
+
+<rect x="360" y="488" width="260" height="44" rx="6" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.5"/>
+<text class="th" x="490" y="508" text-anchor="middle" fill="#04342C">스레드 수 개로 처리</text>
+<text class="ts" x="490" y="524" text-anchor="middle" fill="#085041">CPU 코어 수 만큼의 이벤트 루프</text>
+
+<rect x="60" y="552" width="560" height="44" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+<text class="ts" x="80" y="572" fill="#2C2C2A">결론: 동일 하드웨어에서 WebFlux는 I/O 대기 시간을 다른 요청 처리에 재활용하여</text>
+<text class="ts" x="80" y="588" fill="#2C2C2A">더 적은 스레드로 더 많은 동시 요청을 처리 — 채팅 도메인의 특성과 정확히 부합</text>
+</svg>
